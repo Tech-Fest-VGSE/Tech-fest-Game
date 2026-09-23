@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cyber Security Awareness Game</title>
+
+<style>
+
+/* =========================
+   BASIC SETTINGS
+========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    background:
+        radial-gradient(circle at top, #201020, #050505 55%);
+
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+}
+
+
+/* =========================
+   MAIN CONTAINER
+========================= */
+
+.container {
+    width: 100%;
+    max-width: 450px;
+
+    text-align: center;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.logo {
+    color: #ff1744;
+
+    font-size: 13px;
+
+    letter-spacing: 4px;
+
+    margin-bottom: 12px;
+}
+
+h1 {
+    font-size: 32px;
+
+    line-height: 1.1;
+
+    margin: 10px 0;
+}
+
+.red {
+    color: #ff1744;
+}
+
+.subtitle {
+    color: #aaa;
+
+    font-size: 15px;
+
+    line-height: 1.5;
+
+    margin-bottom: 25px;
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.card {
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.07),
+            rgba(255,255,255,.02)
+        );
+
+    border: 1px solid rgba(255,255,255,.12);
+
+    border-radius: 22px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 0 40px rgba(255,0,70,.12);
+
+    backdrop-filter: blur(10px);
+}
+
+
+/* =========================
+   WHEEL AREA
+========================= */
+
+.wheel-wrapper {
+
+    position: relative;
+
+    width: 290px;
+    height: 310px;
+
+    margin: 10px auto;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* POINTER */
+
+.wheel-pointer {
+
+    position: absolute;
+
+    top: 0;
+
+    z-index: 20;
+
+    font-size: 42px;
+
+    color: white;
+
+    text-shadow:
+        0 0 5px #ff1744,
+        0 0 15px #ff1744,
+        0 0 25px #ff1744;
+}
+
+
+/* =========================
+   SPINNING WHEEL
+========================= */
+
+.wheel {
+
+    position: relative;
+
+    width: 250px;
+    height: 250px;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+            #ff1744 0deg 60deg,
+            #ff9100 60deg 120deg,
+            #ffd600 120deg 180deg,
+            #00e676 180deg 240deg,
+            #00b0ff 240deg 300deg,
+            #d500f9 300deg 360deg
+        );
+
+    border: 8px solid white;
+
+    box-shadow:
+
+        0 0 15px #ff1744,
+
+        0 0 30px #00b0ff,
+
+        0 0 50px rgba(255,255,255,.15);
+
+    transition:
+        transform 4.5s cubic-bezier(.17,.67,.12,.99);
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   WHEEL CENTER
+========================= */
+
+.wheel-center {
+
+    position: absolute;
+
+    width: 72px;
+    height: 72px;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    background: #080808;
+
+    border: 5px solid white;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    font-weight: bold;
+
+    font-size: 15px;
+
+    z-index: 10;
+
+    box-shadow:
+        0 0 20px rgba(255,255,255,.8);
+}
+
+
+/* =========================
+   REWARD TEXT
+========================= */
+
+.reward {
+    position: absolute;
+
+    width: 82px;
+
+    height: 65px;
+
+    color: #ffffff !important;
+
+    text-align: center;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    line-height: 16px;
+
+    text-shadow:
+        0 2px 4px rgba(0,0,0,0.9);
+
+    z-index: 5;
+
+    pointer-events: none;
+
+    display: block;
+}
+
+
+/* =========================
+   TOP
+   FREE GIFT
+========================= */
+
+.reward1 {
+    top: 25px;
+    left: 65%;
+
+    transform: translateX(-50%);
+}
+
+
+/* =========================
+   TOP RIGHT
+   ₹500 BONUS
+========================= */
+
+.reward2 {
+    top: 85px;
+    right: 10px;
+}
+
+
+/* =========================
+   BOTTOM RIGHT
+   PHONE UPGRADE
+========================= */
+
+.reward3 {
+    bottom: 10px;
+    right: 35px;
+}
+
+
+/* =========================
+   BOTTOM
+   CYBER SHIELD
+========================= */
+
+.reward4 {
+    bottom: 15px;
+    left: 70px;
+
+    transform: translateX(-50%);
+}
+
+
+/* =========================
+   BOTTOM LEFT
+   GAMING REWARD
+========================= */
+
+.reward5 {
+    bottom: 80px;
+    left: 9px;
+}
+
+
+/* =========================
+   TOP LEFT
+   MYSTERY PRIZE
+========================= */
+
+.reward6 {
+    top: 36px;
+    left: 35px;
+}
+
+/* =========================
+   SPIN BUTTON
+========================= */
+
+button {
+
+    width: 100%;
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    margin-top: 15px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff1744,
+            #ff9100,
+            #d500f9
+        );
+
+    color: white;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 20px rgba(255,23,68,.35);
+
+    transition: .2s;
+}
+
+
+button:hover {
+
+    transform: scale(1.03);
+
+    box-shadow:
+        0 0 30px rgba(255,255,255,.4);
+}
+
+
+button:disabled {
+
+    opacity: .5;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* =========================
+   HIDDEN SCREENS
+========================= */
+
+.hidden {
+    display: none;
+}
+
+
+/* =========================
+   WIN SCREEN
+========================= */
+
+.prize-icon {
+
+    font-size: 70px;
+
+    animation:
+        bounce 1s infinite alternate;
+}
+
+
+@keyframes bounce {
+
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-12px);
+    }
+}
+
+
+/* =========================
+   WARNING SCREEN
+========================= */
+
+.warning {
+
+    font-size: 65px;
+
+    animation:
+        warningFlash .7s infinite alternate;
+}
+
+
+@keyframes warningFlash {
+
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.15);
+    }
+}
+
+
+/* =========================
+   LESSON
+========================= */
+
+.lesson {
+
+    text-align: left;
+
+    margin-top: 20px;
+}
+
+
+.lesson-item {
+
+    background: rgba(255,255,255,.06);
+
+    border-left:
+        4px solid #ff1744;
+
+    padding: 13px;
+
+    margin: 9px 0;
+
+    border-radius: 7px;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+
+    margin-top: 20px;
+
+    color: #777;
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:400px) {
+
+    h1 {
+        font-size: 27px;
+    }
+
+    .wheel {
+        width: 220px;
+        height: 220px;
+    }
+
+    .wheel-wrapper {
+        width: 260px;
+        height: 280px;
+    }
+
+    .reward {
+        font-size: 10px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- =====================================
+     SCREEN 1 — GAME
+===================================== -->
+
+<div id="gameScreen">
+
+    <div class="logo">
+        
+    </div>
+
+
+    <h1>
+        
+        <span class="red">Mystry Game for Fest</span>
+    </h1>
+
+
+    <p class="subtitle">
+
+        🎮 Play the game.<br>
+
+        🎁 Spin the wheel.<br>
+
+        🔐 Discover the lesson.
+
+    </p>
+
+
+    <div class="card">
+
+
+        <div class="wheel-wrapper">
+
+
+            <!-- POINTER -->
+
+            <div class="wheel-pointer">
+                ▼
+            </div>
+
+
+            <!-- WHEEL -->
+
+            <div
+                class="wheel"
+                id="wheel"
+            >
+
+
+                <!-- REWARDS -->
+
+                <div class="reward reward1">
+                    🎁<br>
+                    FREE<br>
+                    GIFT
+                </div>
+
+
+                <div class="reward reward2">
+                    💰<br>
+                    ₹500<br>
+                    BONUS
+                </div>
+
+
+                <div class="reward reward3">
+                    📱<br>
+                    PHONE<br>
+                    UPGRADE
+                </div>
+
+
+                <div class="reward reward4">
+                    🛡️<br>
+                    CYBER<br>
+                    SHIELD
+                </div>
+
+
+                <div class="reward reward5">
+                    🎮<br>
+                    GAMING<br>
+                    REWARD
+                </div>
+
+
+                <div class="reward reward6">
+                    🎉<br>
+                    MYSTERY<br>
+                    PRIZE
+                </div>
+
+
+                <!-- CENTER -->
+
+                <div class="wheel-center">
+                    SPIN
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <button
+            id="spinButton"
+            onclick="spinWheel()"
+        >
+
+            🎰 SPIN & WIN
+
+        </button>
+
+
+    </div>
+
+
+    <div class="footer">
+
+        JUST 30 SECONDS • TRY YOUR LUCK
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================
+     SCREEN 2 — WIN
+===================================== -->
+
+<div
+    id="winScreen"
+    class="hidden"
+>
+
+
+    <div class="logo">
+        CONGRATULATIONS
+    </div>
+
+
+    <div class="card">
+
+
+        <div class="prize-icon">
+            🎁
+        </div>
+
+
+        <h1>
+
+            YOU
+            <span class="red">
+                WON!
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            🎉 Congratulations!
+
+        </p>
+
+
+        <p>
+
+            You have been selected
+            for a special
+            <strong>
+                Lucky Draw
+            </strong>
+            reward.
+
+        </p>
+
+
+        <p style="color:#aaa">
+
+            Your mystery prize is waiting...
+
+        </p>
+
+
+        <button
+            onclick="showTrap()"
+        >
+
+            🎁 CLAIM YOUR PRIZE
+
+        </button>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     SCREEN 3 — TRAP REVEAL
+===================================== -->
+
+<div
+    id="trapScreen"
+    class="hidden"
+>
+
+
+    <div class="card">
+
+
+        <div class="warning">
+            ⚠️
+        </div>
+
+
+        <h1>
+
+            STOP!
+
+        </h1>
+
+
+        <h2 class="red">
+
+            THINK BEFORE YOU CLICK
+
+        </h2>
+
+
+        <p>
+
+            Did you notice something?
+
+        </p>
+
+
+        <p>
+
+            A free reward made you want
+            to click immediately.
+
+        </p>
+
+
+        <p>
+
+            This is one of the techniques
+            scammers use to attract victims.
+
+        </p>
+
+
+        <button
+            onclick="showLesson()"
+        >
+
+            🛡️ SHOW ME THE LESSON
+
+        </button>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     SCREEN 4 — LESSON
+===================================== -->
+
+<div
+    id="lessonScreen"
+    class="hidden"
+>
+
+
+    <div class="card">
+
+
+        <div style="font-size:65px">
+            🛡️
+        </div>
+
+
+        <h1>
+
+            THIS WAS A
+            <span class="red">
+                SIMULATION
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            Your phone was
+            <strong>
+                NOT hacked.
+            </strong>
+
+        </p>
+
+
+        <p>
+
+            This demonstration shows
+            how fake rewards can make
+            people click suspicious links
+            without checking first.
+
+        </p>
+
+
+        <div class="lesson">
+
+
+            <div class="lesson-item">
+
+                🎁
+                <strong>
+                    Fake prizes
+                </strong>
+                and offers
+
+            </div>
+
+
+            <div class="lesson-item">
+
+                ⏰
+                <strong>
+                    Urgency
+                </strong>
+                and limited-time messages
+
+            </div>
+
+
+            <div class="lesson-item">
+
+                🔗
+                <strong>
+                    Suspicious links
+                </strong>
+
+            </div>
+
+
+            <div class="lesson-item">
+
+                🌐
+                <strong>
+                    Fake websites
+                </strong>
+
+            </div>
+
+
+            <div class="lesson-item">
+
+                🔐
+                Never share
+                <strong>
+                    OTPs, passwords or UPI PINs
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+        <button
+            onclick="restartGame()"
+        >
+
+            🔄 PLAY AGAIN
+
+        </button>
+
+
+    </div>
+
+
+    <div class="footer">
+
+        THINK BEFORE YOU CLICK
+        •
+        STAY SAFE ONLINE
+
+    </div>
+
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+/* =====================================
+   VARIABLES
+===================================== */
+
+let rotation = 0;
+
+
+/* =====================================
+   SPIN FUNCTION
+===================================== */
+
+function spinWheel() {
+
+
+    const wheel =
+        document.getElementById("wheel");
+
+
+    const button =
+        document.getElementById("spinButton");
+
+
+    /* Disable button */
+
+    button.disabled = true;
+
+
+    button.innerText =
+        "🎰 SPINNING...";
+
+
+    /*
+       Add multiple rotations.
+
+       Random extra rotation makes
+       every spin look different.
+    */
+
+    const extraRotation =
+        Math.floor(Math.random() * 360);
+
+
+    rotation +=
+        1800 +
+        extraRotation;
+
+
+    wheel.style.transform =
+        "rotate(" +
+        rotation +
+        "deg)";
+
+
+    /*
+       Wait for wheel animation
+    */
+
+    setTimeout(function() {
+
+
+        document
+            .getElementById("gameScreen")
+            .classList
+            .add("hidden");
+
+
+        document
+            .getElementById("winScreen")
+            .classList
+            .remove("hidden");
+
+
+    }, 4700);
+
+}
+
+
+/* =====================================
+   SHOW TRAP
+===================================== */
+
+function showTrap() {
+
+
+    document
+        .getElementById("winScreen")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("trapScreen")
+        .classList
+        .remove("hidden");
+
+}
+
+
+/* =====================================
+   SHOW LESSON
+===================================== */
+
+function showLesson() {
+
+
+    document
+        .getElementById("trapScreen")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("lessonScreen")
+        .classList
+        .remove("hidden");
+
+}
+
+
+/* =====================================
+   RESTART
+===================================== */
+
+function restartGame() {
+
+    location.reload();
+
+}
+
+</script>
+
+
+</body>
+</html>
