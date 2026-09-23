@@ -113,23 +113,17 @@ h1 {
 /* =========================
    WHEEL AREA
 ========================= */
-
 .wheel-wrapper {
-
     position: relative;
-
-    width: 290px;
-    height: 310px;
+    width: min(290px, 90vw);
+    height: min(310px, 95vw);
 
     margin: 10px auto;
 
     display: flex;
-
     justify-content: center;
     align-items: center;
 }
-
-
 /* POINTER */
 
 .wheel-pointer {
@@ -156,23 +150,10 @@ h1 {
 ========================= */
 
 .wheel {
-
-    position: relative;
-
-    width: 250px;
-    height: 250px;
-
-    border-radius: 50%;
-
-    background:
-        conic-gradient(
-            #ff1744 0deg 60deg,
-            #ff9100 60deg 120deg,
-            #ffd600 120deg 180deg,
-            #00e676 180deg 240deg,
-            #00b0ff 240deg 300deg,
-            #d500f9 300deg 360deg
-        );
+    width: min(250px, 75vw);
+    height: min(250px, 75vw);
+    aspect-ratio: 1 / 1;
+}
 
     border: 8px solid white;
 
@@ -236,98 +217,52 @@ h1 {
 .reward {
     position: absolute;
 
-    width: 82px;
+    width: 28%;
+    height: auto;
 
-    height: 65px;
-
-    color: #ffffff !important;
-
+    color: white !important;
     text-align: center;
 
-    font-size: 12px;
-
+    font-size: clamp(9px, 3vw, 12px);
     font-weight: 800;
-
-    line-height: 16px;
-
-    text-shadow:
-        0 2px 4px rgba(0,0,0,0.9);
+    line-height: 1.25;
 
     z-index: 5;
-
     pointer-events: none;
-
-    display: block;
 }
 
-
-/* =========================
-   TOP
-   FREE GIFT
-========================= */
+/* 6 positions around the wheel */
 
 .reward1 {
-    top: 25px;
-    left: 65%;
-
+    top: 8%;
+    left: 50%;
     transform: translateX(-50%);
 }
-
-
-/* =========================
-   TOP RIGHT
-   ₹500 BONUS
-========================= */
 
 .reward2 {
-    top: 85px;
-    right: 30px;
+    top: 30%;
+    right: 2%;
 }
-
-
-/* =========================
-   BOTTOM RIGHT
-   PHONE UPGRADE
-========================= */
 
 .reward3 {
-    bottom: 10px;
-    right: 35px;
+    bottom: 8%;
+    right: 12%;
 }
 
-
-/* =========================
-   BOTTOM
-   CYBER SHIELD
-========================= */
-
 .reward4 {
-    bottom: 15px;
-    left: 70px;
-
+    bottom: 8%;
+    left: 50%;
     transform: translateX(-50%);
 }
 
-
-/* =========================
-   BOTTOM LEFT
-   GAMING REWARD
-========================= */
-
 .reward5 {
-    bottom: 90px;
-    left: 20px;
+    bottom: 30%;
+    left: 2%;
 }
 
-
-/* =========================
-   TOP LEFT
-   MYSTERY PRIZE
-========================= */
-
 .reward6 {
-    top: 45px;
-    left: 35px;
+    top: 30%;
+    left: 2%;
 }
 
 /* =========================
