@@ -1,0 +1,3139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cyber Security Awareness Game</title>
+
+<style>
+
+/* =========================
+   BASIC SETTINGS
+========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    background:
+        radial-gradient(circle at top, #201020, #050505 55%)
+        fixed;
+
+    color: white;
+
+    display: flex;
+    justify-content: center;
+
+    /*
+       .container uses margin:auto to center —
+       this still allows SCROLLING when the
+       content is taller than the screen
+       (small phones / landscape),
+       unlike align-items:center which clips.
+    */
+
+    padding:
+        max(12px, env(safe-area-inset-top))
+        max(14px, env(safe-area-inset-right))
+        max(12px, env(safe-area-inset-bottom))
+        max(14px, env(safe-area-inset-left));
+}
+
+
+/* =========================
+   MAIN CONTAINER
+========================= */
+
+.container {
+    width: 100%;
+    max-width: 450px;
+
+    margin: auto;
+
+    text-align: center;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.logo {
+    color: #ff1744;
+
+    font-size: 13px;
+
+    letter-spacing: clamp(2px, 1.2vw, 4px);
+
+    margin-bottom: 12px;
+}
+
+h1 {
+    font-size: clamp(26px, 7vw, 32px);
+
+    line-height: 1.1;
+
+    margin: 10px 0;
+}
+
+.red {
+    color: #ff1744;
+}
+
+.subtitle {
+    color: #aaa;
+
+    font-size: clamp(14px, 3.8vw, 15px);
+
+    line-height: 1.5;
+
+    margin-bottom: clamp(16px, 5vw, 25px);
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.card {
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.07),
+            rgba(255,255,255,.02)
+        );
+
+    border: 1px solid rgba(255,255,255,.12);
+
+    border-radius: 22px;
+
+    padding: clamp(16px, 5vw, 25px);
+
+    box-shadow:
+        0 0 40px rgba(255,0,70,.12);
+
+    backdrop-filter: blur(10px);
+}
+
+
+/* =========================
+   HUD (score / time / best)
+========================= */
+
+.hud {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: clamp(5px, 1.6vw, 8px);
+
+    margin-bottom: 10px;
+}
+
+.hud-pill {
+
+    flex: 1;
+
+    min-width: 0;
+
+    background: rgba(255,255,255,.07);
+
+    border: 1px solid rgba(255,255,255,.14);
+
+    border-radius: 10px;
+
+    padding: clamp(6px, 2vw, 8px) 4px;
+
+    font-size: clamp(11px, 3vw, 13px);
+
+    color: #aaa;
+}
+
+.hud-pill b {
+
+    display: block;
+
+    font-size: clamp(16px, 4.5vw, 18px);
+
+    color: #fff;
+
+    margin-top: 2px;
+}
+
+
+/* =========================
+   GAME AREA
+========================= */
+
+.game-box {
+
+    position: relative;
+
+    width: 100%;
+
+    /*
+       Keep the canvas (ratio 340:430) fully
+       visible: cap its width so its HEIGHT
+       never exceeds ~56% of the viewport —
+       works for phones, tablets & desktop.
+    */
+
+    max-width:
+        min(400px, calc(56vh * 340 / 430));
+
+    margin: 0 auto;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255,255,255,.15);
+
+    box-shadow:
+        0 0 25px rgba(0,176,255,.15);
+}
+
+#gameCanvas {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    touch-action: none;
+
+    cursor: crosshair;
+
+    background: #0b0b16;
+}
+
+
+/* START OVERLAY */
+
+.game-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        radial-gradient(circle at center,
+            rgba(10,10,25,.85),
+            rgba(5,5,10,.95));
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: clamp(6px, 2vw, 12px);
+
+    padding: clamp(10px, 4vw, 20px);
+
+    text-align: center;
+
+    overflow: auto;
+}
+
+.game-overlay .big {
+
+    font-size: clamp(30px, 11vw, 46px);
+
+    line-height: 1.2;
+}
+
+.game-overlay p {
+
+    color: #bbb;
+
+    font-size: clamp(12px, 3.4vw, 14px);
+
+    line-height: 1.5;
+
+    margin: 0;
+}
+
+.start-btn {
+
+    margin-top: clamp(4px, 1.5vw, 8px);
+
+    width: auto;
+
+    padding:
+        clamp(11px, 3.2vw, 14px)
+        clamp(20px, 6vw, 30px);
+}
+
+
+/* =========================
+   BUTTONS (generic)
+========================= */
+
+button {
+
+    width: 100%;
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: clamp(13px, 4vw, 16px);
+
+    margin-top: 15px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff1744,
+            #ff9100,
+            #d500f9
+        );
+
+    color: white;
+
+    font-size: clamp(15px, 4.2vw, 18px);
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 20px rgba(255,23,68,.35);
+
+    transition: .2s;
+}
+
+
+button:hover {
+
+    transform: scale(1.03);
+
+    box-shadow:
+        0 0 30px rgba(255,255,255,.4);
+}
+
+
+button:active {
+
+    transform: scale(.98);
+}
+
+
+button:disabled {
+
+    opacity: .5;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* =========================
+   HIDDEN SCREENS
+========================= */
+
+.hidden {
+    display: none;
+}
+
+
+/* =========================
+   SCORE SCREEN
+========================= */
+
+.score-big {
+
+    font-size: clamp(48px, 15vw, 64px);
+
+    font-weight: 900;
+
+    color: #ffd600;
+
+    line-height: 1;
+
+    margin: 10px 0 4px;
+
+    text-shadow:
+        0 0 20px rgba(255,214,0,.6);
+}
+
+.score-label {
+
+    color: #aaa;
+
+    font-size: 13px;
+
+    letter-spacing: 2px;
+}
+
+.best-line {
+
+    color: #aaa;
+
+    font-size: 14px;
+
+    margin: 8px 0 0;
+}
+
+.reward-note {
+
+    color: #00e676;
+
+    font-size: clamp(13px, 3.6vw, 14px);
+
+    font-weight: bold;
+
+    margin: 12px 0 0;
+}
+
+
+/* name input */
+
+.name-input {
+
+    width: 100%;
+
+    padding: 13px;
+
+    margin-top: 14px;
+
+    border-radius: 10px;
+
+    border:
+        1px solid rgba(255,255,255,.25);
+
+    background: rgba(0,0,0,.35);
+
+    color: #fff;
+
+    font-size: 16px;   /* ≥16px: stops iOS zoom */
+
+    text-align: center;
+
+    outline: none;
+}
+
+.name-input:focus {
+
+    border-color: #00b0ff;
+
+    box-shadow: 0 0 10px rgba(0,176,255,.4);
+}
+
+.save-status {
+
+    min-height: 18px;
+
+    margin-top: 10px;
+
+    font-size: 13px;
+
+    color: #00e676;
+}
+
+
+/* leaderboard */
+
+.leaderboard {
+
+    text-align: left;
+
+    margin-top: 18px;
+}
+
+.leaderboard h3 {
+
+    font-size: 13px;
+
+    letter-spacing: 3px;
+
+    color: #aaa;
+
+    margin: 0 0 8px;
+
+    text-align: center;
+}
+
+.lb-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    background: rgba(255,255,255,.06);
+
+    border-left: 4px solid #ffd600;
+
+    padding: 9px 12px;
+
+    margin: 6px 0;
+
+    border-radius: 7px;
+
+    font-size: 14px;
+}
+
+.lb-row .rank {
+    color: #ffd600;
+    font-weight: bold;
+
+    flex-shrink: 0;
+}
+
+/* player name — ellipsis if too long */
+
+.lb-row span:nth-child(2) {
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.lb-row .lb-score {
+
+    font-weight: bold;
+    color: #00e676;
+
+    flex-shrink: 0;
+}
+
+.lb-empty {
+
+    color: #777;
+
+    font-size: 13px;
+
+    text-align: center;
+
+    padding: 8px;
+}
+
+
+/* =========================
+   SCAN SCREEN
+========================= */
+
+.scan-icon {
+
+    font-size: clamp(52px, 15vw, 65px);
+
+    animation:
+        scanPulse 1s infinite alternate;
+}
+
+
+@keyframes scanPulse {
+
+    from {
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px #00b0ff);
+    }
+
+    to {
+        transform: scale(1.12);
+        filter: drop-shadow(0 0 20px #00b0ff);
+    }
+}
+
+
+.scan-note {
+
+    color: #aaa;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+.scan-list {
+
+    text-align: left;
+
+    margin-top: 15px;
+}
+
+
+.scan-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    background: rgba(255,255,255,.06);
+
+    border-left: 4px solid #00b0ff;
+
+    padding: 11px 13px;
+
+    margin: 8px 0;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+}
+
+
+.scan-label {
+
+    color: #aaa;
+
+    flex-shrink: 0;
+}
+
+
+.scan-value {
+
+    color: #fff;
+
+    font-weight: bold;
+
+    text-align: right;
+
+    min-width: 0;          /* allow shrinking */
+
+    word-break: break-word;
+}
+
+
+/* =========================
+   WARNING SCREEN
+========================= */
+
+.warning {
+
+    font-size: clamp(52px, 15vw, 65px);
+
+    animation:
+        warningFlash .7s infinite alternate;
+}
+
+
+@keyframes warningFlash {
+
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.15);
+    }
+}
+
+
+/* =========================
+   LESSON
+========================= */
+
+.lesson {
+
+    text-align: left;
+
+    margin-top: 20px;
+}
+
+
+.lesson-item {
+
+    background: rgba(255,255,255,.06);
+
+    border-left:
+        4px solid #ff1744;
+
+    padding: 13px;
+
+    margin: 9px 0;
+
+    border-radius: 7px;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+
+    margin-top: 20px;
+
+    color: #777;
+
+    font-size: clamp(11px, 3vw, 12px);
+
+    letter-spacing: clamp(.5px, .8vw, 1px);
+}
+
+
+/* =========================
+   SMALL PHONES (≤400px)
+========================= */
+
+@media(max-width:400px) {
+
+    h1 {
+        font-size: 26px;
+    }
+
+    .score-big {
+        font-size: 50px;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    .hud-pill {
+        padding: 6px 2px;
+    }
+
+    .logo {
+        margin-bottom: 8px;
+    }
+
+    .leaderboard h3 {
+        letter-spacing: 2px;
+    }
+
+}
+
+
+/* =========================
+   VERY SMALL (≤330px)
+========================= */
+
+@media(max-width:330px) {
+
+    h1 {
+        font-size: 23px;
+    }
+
+    .hud {
+        gap: 4px;
+    }
+
+    .hud-pill b {
+        font-size: 15px;
+    }
+
+    .scan-item {
+        font-size: 12px;
+        padding: 9px 10px;
+    }
+
+}
+
+
+/* =========================
+   SHORT SCREENS
+   (landscape phones)
+========================= */
+
+@media(max-height:520px) {
+
+    .subtitle {
+        display: none;  /* rules also live in the start overlay */
+    }
+
+    h1 {
+        margin: 4px 0;
+    }
+
+    .footer {
+        margin-top: 10px;
+    }
+
+    .score-big {
+        margin-top: 4px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- =====================================
+     SCREEN 1 — GAME
+===================================== -->
+
+<div id="gameScreen">
+
+    <div class="logo">
+        
+    </div>
+
+
+    <h1>
+        
+        <span class="red">Mystry Game for Fest</span>
+    </h1>
+
+
+    <p class="subtitle">
+
+        🛡️ Catch safe items — <strong>+10</strong><br>
+
+        🎁 Dodge scams — <strong>−15</strong><br>
+
+        🏆 60 sec • Top scores win rewards
+
+    </p>
+
+
+    <div class="card">
+
+
+        <!-- HUD -->
+
+        <div class="hud">
+
+            <div class="hud-pill">
+                ⏱ TIME
+                <b id="timeEl">60</b>
+            </div>
+
+            <div class="hud-pill">
+                ⭐ SCORE
+                <b id="scoreEl">0</b>
+            </div>
+
+            <div class="hud-pill">
+                👑 BEST
+                <b id="bestEl">0</b>
+            </div>
+
+        </div>
+
+
+        <!-- GAME BOX -->
+
+        <div class="game-box">
+
+            <canvas
+                id="gameCanvas"
+                width="340"
+                height="430"
+            ></canvas>
+
+
+            <!-- START OVERLAY -->
+
+            <div
+                class="game-overlay"
+                id="gameOverlay"
+            >
+
+                <div class="big">🛡️ 🎁 💣</div>
+
+                <p>
+
+                    Move the tray with your finger / mouse.<br>
+
+                    <span style="color:#00e676">
+                        🛡️ 🔒 ✅ 🔐 = +10
+                    </span><br>
+
+                    <span style="color:#ff1744">
+                        🎁 🔗 🦠 💣 = −15
+                    </span>
+
+                </p>
+
+                <button
+                    class="start-btn"
+                    id="startBtn"
+                    onclick="startGame()"
+                >
+
+                    ▶ START GAME
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="footer">
+
+        60 SECONDS • HIGHEST SCORE WINS
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================
+     SCREEN 2 — SCORE & REWARDS
+===================================== -->
+
+<div
+    id="scoreScreen"
+    class="hidden"
+>
+
+
+    <div class="logo">
+        GAME OVER
+    </div>
+
+
+    <div class="card">
+
+
+        <div
+            class="score-big"
+            id="finalScore"
+        >
+            0
+        </div>
+
+
+        <div class="score-label">
+            FINAL SCORE
+        </div>
+
+
+        <p class="best-line">
+
+            👑 Best: <b id="bestScore">0</b>
+
+        </p>
+
+
+        <p class="reward-note">
+
+            🏆 Top scores on the leaderboard
+            win rewards at the fest!
+
+        </p>
+
+
+        <input
+            class="name-input"
+            id="playerName"
+            maxlength="12"
+            placeholder="Enter your name"
+            autocomplete="off"
+        >
+
+
+        <button
+            id="saveBtn"
+            onclick="saveScore()"
+        >
+
+            💾 SAVE MY SCORE
+
+        </button>
+
+
+        <div
+            class="save-status"
+            id="saveStatus"
+        ></div>
+
+
+        <!-- LEADERBOARD -->
+
+        <div class="leaderboard">
+
+            <h3>🏆 LEADERBOARD</h3>
+
+            <div id="lbRows">
+                <div class="lb-empty">
+                    Loading…
+                </div>
+            </div>
+
+        </div>
+
+
+        <button
+            onclick="claimReward()"
+        >
+
+            🎁 CLAIM YOUR REWARD
+
+        </button>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     SCREEN 3 — SCAN REVEAL
+===================================== -->
+
+<div
+    id="scanScreen"
+    class="hidden"
+>
+
+
+    <div class="logo">
+        SCAN COMPLETE
+    </div>
+
+
+    <div class="card">
+
+
+        <div class="scan-icon">
+            🔍
+        </div>
+
+
+        <h1>
+
+            I
+            <span class="red">
+                KNOW YOU
+            </span>
+
+        </h1>
+
+
+        <p class="scan-note">
+
+            From the moment you opened this page,
+            your browser shared all of this
+            <strong>without being hacked</strong> —
+            no app permission, no virus.
+
+        </p>
+
+
+        <div
+            class="scan-list"
+            id="scanResults"
+        ></div>
+
+
+        <button
+            onclick="showTrap()"
+        >
+
+            🤔 HOW DID YOU KNOW ALL THIS?
+
+        </button>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     SCREEN 4 — TRAP REVEAL
+===================================== -->
+
+<div
+    id="trapScreen"
+    class="hidden"
+>
+
+
+    <div class="card">
+
+
+        <div class="warning">
+            ⚠️
+        </div>
+
+
+        <h1>
+
+            STOP!
+
+        </h1>
+
+
+        <h2 class="red">
+
+            THINK BEFORE YOU CLICK
+
+        </h2>
+
+
+        <p>
+
+            Did you notice something?
+
+        </p>
+
+
+        <p>
+
+            A free reward made you want
+            to claim your prize immediately.
+
+        </p>
+
+
+        <p>
+
+            This is one of the techniques
+            scammers use to attract victims.
+
+        </p>
+
+
+        <button
+            onclick="showLesson()"
+        >
+
+            🛡️ SHOW ME THE LESSON
+
+        </button>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================
+     SCREEN 5 — LESSON
+===================================== -->
+
+<div
+    id="lessonScreen"
+    class="hidden"
+>
+
+
+    <div class="card">
+
+
+        <div style="font-size:65px">
+            🛡️
+        </div>
+
+
+        <h1>
+
+            THIS WAS A
+            <span class="red">
+                SIMULATION
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            Your phone was
+            <strong>
+                NOT hacked.
+            </strong>
+
+        </p>
+
+
+        <p>
+
+            This demonstration shows
+            how fake rewards can make
+            people click suspicious links
+            without checking first.
+
+        </p>
+
+
+        <div class="lesson">
+
+
+            <div class="lesson-item">
+
+                🎁
+                <strong>
+                    Fake prizes
+                </strong>
+                and offers
+
+            </div>
+
+
+            <div class="lesson-item">
+
+                ⏰
+                <strong>
+                    Urgency
+                </strong>
+                and limited-time messages
+
+            </div>
+
+
+            <div class="lesson-item">
+
+                🔗
+                <strong>
+                    Suspicious links
+                </strong>
+
+            </div>
+
+
+            <div class="lesson-item">
+
+                🌐
+                <strong>
+                    Fake websites
+                </strong>
+
+            </div>
+
+
+            <div class="lesson-item">
+
+                🔐
+                Never share
+                <strong>
+                    OTPs, passwords or UPI PINs
+                </strong>
+
+            </div>
+
+
+            <div class="lesson-item">
+
+                👁️
+                A website can see your
+                <strong>
+                    IP, network, device & battery
+                </strong>
+                just by opening it —
+                that "scan" used only
+                built-in browser data.
+
+            </div>
+
+
+        </div>
+
+
+        <button
+            onclick="restartGame()"
+        >
+
+            🔄 PLAY AGAIN
+
+        </button>
+
+
+    </div>
+
+
+    <div class="footer">
+
+        THINK BEFORE YOU CLICK
+        •
+        STAY SAFE ONLINE
+
+    </div>
+
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+/* =====================================
+   GOOGLE SHEET WEB APP URL
+   (from Apps Script — must end in /exec)
+===================================== */
+
+const SHEET_WEB_APP_URL =
+    "https://script.google.com/macros/s/AKfycbyYdICMKm5AB1SSpW1oRFhKRWfs1u1sHRzRZeA4v9s_DVCY1OMiMc9lTfQTvriQDyFL2w/exec";
+
+
+/* =====================================
+   COLLECT SCAN DATA
+   (runs the moment the page opens)
+===================================== */
+
+/*
+   REAL device model (fixes the "K" bug)
+   --------------------------------------
+   Modern Android Chrome freezes the normal
+   User-Agent to "Android 10; K" — that "K"
+   is a privacy placeholder, not a model!
+
+   The real model is only available through
+   User-Agent Client Hints, and only on a
+   secure origin (HTTPS / localhost).
+*/
+
+async function getClientHints() {
+
+    try {
+
+        const ud = navigator.userAgentData;
+
+        if (!ud) return null;
+
+
+        let hints = {
+
+            model:
+                (ud.model || "").trim(),
+
+            platform:
+                ud.platform || "",
+
+            mobile:
+                ud.mobile
+        };
+
+
+        /* model is a "high entropy" hint —
+           must be requested explicitly */
+
+        if (
+            typeof ud.getHighEntropyValues ===
+            "function"
+        ) {
+
+            const h =
+                await ud.getHighEntropyValues([
+                    "model",
+                    "platformVersion"
+                ]);
+
+            if (h) {
+
+                hints =
+                    Object.assign(hints, h);
+
+                if (h.model) {
+
+                    hints.model =
+                        String(h.model).trim();
+                }
+            }
+        }
+
+        return hints;
+
+    } catch (err) {
+
+        return null;
+    }
+}
+
+
+function getDeviceInfo(hints) {
+
+    const ua = navigator.userAgent;
+
+    /* Device / phone model */
+
+    let device = "Unknown device";
+
+    const model =
+        ((hints && hints.model) || "").trim();
+
+
+    if (model) {
+
+        /* real model from Client Hints */
+
+        device = model;
+
+    } else if (/iPhone/.test(ua)) {
+
+        device = "iPhone";
+
+    } else if (/iPad/.test(ua)) {
+
+        device = "iPad";
+
+    } else if (/Android/.test(ua)) {
+
+        const m =
+            ua.match(/Android[^;]*;\s*([^;)]+)/);
+
+        /* strip any " Build/..." suffix */
+
+        const token =
+            m
+                ? m[1].trim()
+                      .split(/\s+Build\//)[0]
+                : "";
+
+        /*
+           Reduced UAs give fake tokens:
+           "K"       = Chrome's placeholder
+           "Mobile" / "Tablet" = Firefox etc.
+           None of these are real model names.
+        */
+
+        if (
+            token &&
+            !/^(k|mobile|tablet)$/i.test(token)
+        ) {
+
+            device = token;
+
+        } else {
+
+            device =
+                "Android device " +
+                "(model hidden by browser)";
+        }
+
+    } else if (/Windows Phone/.test(ua)) {
+
+        device = "Windows Phone";
+
+    } else if (/Windows/.test(ua)) {
+
+        device = "Windows PC";
+
+    } else if (/Macintosh|Mac OS X/.test(ua)) {
+
+        device = "Mac";
+    }
+
+
+    /* OS + browser */
+
+    let os = "Unknown OS";
+
+    const plat =
+        ((hints && hints.platform) || "");
+
+    const platVer =
+        ((hints && hints.platformVersion) || "");
+
+    const majorVer =
+        (platVer.match(/^\d+/) || [null])[0];
+
+
+    if (plat) {
+
+        /*
+           Show the REAL Android version —
+           the frozen UA always lies "10".
+           (Only for Android: Windows
+           platformVersion is an NT number.)
+        */
+
+        os =
+            plat +
+            (plat === "Android" && majorVer
+                ? " " + majorVer
+                : "");
+
+    } else if (/Android/.test(ua)) {
+
+        os = "Android";
+
+    } else if (/iPhone|iPad|iPod/.test(ua)) {
+
+        os = "iOS / iPadOS";
+
+    } else if (/Windows/.test(ua)) {
+
+        os = "Windows";
+
+    } else if (/Macintosh|Mac OS X/.test(ua)) {
+
+        os = "macOS";
+
+    } else if (/Linux/.test(ua)) {
+
+        os = "Linux";
+    }
+
+
+    let browser = "Unknown browser";
+
+    if (/Edg\//.test(ua)) {
+
+        browser = "Edge";
+
+    } else if (/OPR\/|Opera/.test(ua)) {
+
+        browser = "Opera";
+
+    } else if (/Chrome\//.test(ua)) {
+
+        browser = "Chrome";
+
+    } else if (/Firefox\//.test(ua)) {
+
+        browser = "Firefox";
+
+    } else if (/Safari\//.test(ua)) {
+
+        browser = "Safari";
+    }
+
+
+    return {
+        device: device,
+        os: os + " · " + browser
+    };
+}
+
+
+function getBatteryInfo() {
+
+    return new Promise(function(resolve) {
+
+        if (!navigator.getBattery) {
+
+            resolve(null);
+            return;
+        }
+
+        navigator.getBattery()
+
+            .then(function(b) {
+
+                resolve({
+                    level:
+                        Math.round(b.level * 100),
+                    charging: b.charging
+                });
+            })
+
+            .catch(function() {
+                resolve(null);
+            });
+    });
+}
+
+
+/* ==================================================
+   TIER-1 EXTRAS
+   (no permissions required)
+================================================== */
+
+/* Network type / speed / data-saver
+   (Network Information API — Chrome/Android) */
+
+function getNetworkInfo() {
+
+    const c = navigator.connection;
+
+    if (!c) {
+
+        return "Not shared by this browser";
+    }
+
+    const parts = [];
+
+
+    if (c.effectiveType) {
+
+        parts.push(
+            String(c.effectiveType).toUpperCase()
+        );
+    }
+
+
+    if (typeof c.downlink === "number") {
+
+        parts.push(c.downlink + " Mbps");
+    }
+
+
+    if (
+        typeof c.rtt === "number" &&
+        c.rtt > 0
+    ) {
+
+        parts.push(c.rtt + " ms RTT");
+    }
+
+
+    if (c.saveData) {
+
+        parts.push("Data saver ON");
+    }
+
+
+    return parts.length
+        ? parts.join(" · ")
+        : "Not shared by this browser";
+}
+
+
+/* Exact GPU model — WebGL renderer string */
+
+function getGpuInfo() {
+
+    try {
+
+        const c =
+            document.createElement("canvas");
+
+        const gl =
+            c.getContext("webgl") ||
+            c.getContext("experimental-webgl");
+
+        if (!gl) return null;
+
+
+        const dbg =
+            gl.getExtension(
+                "WEBGL_debug_renderer_info");
+
+        if (!dbg) return null;
+
+
+        return (
+            gl.getParameter(
+                dbg.UNMASKED_RENDERER_WEBGL
+            ) || null
+        );
+
+    } catch (err) {
+
+        return null;
+    }
+}
+
+
+/* Browser fingerprint — canvas rendering
+   + hardware traits hashed to a short ID */
+
+function getFingerprint() {
+
+    let s = "";
+
+    try {
+
+        const c =
+            document.createElement("canvas");
+
+        c.width = 240;
+        c.height = 60;
+
+        const x = c.getContext("2d");
+
+        x.textBaseline = "top";
+        x.font = "16px Arial";
+
+        x.fillStyle = "#f60";
+        x.fillRect(0, 0, 120, 30);
+
+        x.fillStyle = "#069";
+        x.fillText(
+            "cyber-fest,2026 😀",
+            2, 2
+        );
+
+        s = c.toDataURL();
+
+    } catch (err) {}
+
+    s += "|" +
+        (navigator.hardwareConcurrency || "?") +
+        "|" +
+        (navigator.deviceMemory || "?") +
+        "|" +
+        screen.width + "×" +
+        screen.height + "×" +
+        screen.colorDepth +
+        "|" +
+        (Intl.DateTimeFormat()
+            .resolvedOptions().timezone || "") +
+        "|" +
+        (navigator.languages || []).join(",") +
+        "|" +
+        (navigator.platform || "");
+
+
+    /* FNV-1a ×2 → 16 hex chars */
+
+    let h1 = 0x811c9dc5;
+    let h2 = 0x01000193;
+
+    for (let i = 0; i < s.length; i++) {
+
+        const ch = s.charCodeAt(i);
+
+        h1 = Math.imul(h1 ^ ch, 0x01000193)
+             >>> 0;
+
+        h2 = (h2 + ch * (i + 7)) >>> 0;
+        h2 = ((h2 << 5) | (h2 >>> 27)) >>> 0;
+    }
+
+    return (
+        h1.toString(16).padStart(8, "0") +
+        h2.toString(16).padStart(8, "0")
+    );
+}
+
+
+/* Local clock time in their timezone */
+
+function getLocalTime(tz) {
+
+    try {
+
+        return new Intl.DateTimeFormat(
+            "en-IN",
+            {
+                timeZone: tz || undefined,
+                hour: "numeric",
+                minute: "2-digit",
+                day: "numeric",
+                month: "short"
+            }
+        ).format(new Date());
+
+    } catch (err) {
+
+        return new Date().toLocaleString();
+    }
+}
+
+
+/* How they arrived at the page */
+
+function getReferrer() {
+
+    if (!document.referrer) {
+
+        return "Direct visit";
+    }
+
+
+    let host = "";
+
+    try {
+
+        host =
+            new URL(document.referrer)
+                .hostname;
+
+    } catch (err) {
+
+        return "Direct visit";
+    }
+
+
+    const h =
+        host.toLowerCase().replace(/^www\./, "");
+
+
+    if (h.indexOf("google.") === 0) {
+
+        return "Google search";
+    }
+
+    if (h.indexOf("bing.com") === 0) {
+
+        return "Bing search";
+    }
+
+    if (h.indexOf("duckduckgo.com") === 0) {
+
+        return "DuckDuckGo search";
+    }
+
+    if (h.indexOf("facebook.") >= 0) {
+
+        return "Facebook";
+    }
+
+    if (h.indexOf("instagram.") >= 0) {
+
+        return "Instagram";
+    }
+
+    if (h.indexOf("youtube.") >= 0) {
+
+        return "YouTube";
+    }
+
+    if (
+        h.indexOf("twitter.") === 0 ||
+        h === "x.com" ||
+        h === "t.co"
+    ) {
+
+        return "X / Twitter";
+    }
+
+    if (h.indexOf("linkedin.") >= 0) {
+
+        return "LinkedIn";
+    }
+
+    if (h.indexOf("web.whatsapp.") >= 0) {
+
+        return "WhatsApp";
+    }
+
+    return h;
+}
+
+
+/* Local (WiFi) IP via WebRTC.
+
+   Modern browsers often mask this with
+   mDNS — we report that honestly. */
+
+function getLocalIp() {
+
+    return new Promise(function(resolve) {
+
+        try {
+
+            if (
+                !window.RTCPeerConnection
+            ) {
+
+                resolve(null);
+                return;
+            }
+
+
+            const pc =
+                new RTCPeerConnection({
+                    iceServers: []
+                });
+
+            pc.createDataChannel("x");
+
+
+            let done = false;
+
+            const finish = function(v) {
+
+                if (done) return;
+                done = true;
+
+                try { pc.close(); }
+                catch (err) {}
+
+                resolve(v);
+            };
+
+
+            pc.onicecandidate = function(ev) {
+
+                const cand =
+                    ev && ev.candidate
+                        ? ev.candidate.candidate
+                        : "";
+
+                if (!cand) return;
+
+
+                if (cand.indexOf(".local")
+                    !== -1) {
+
+                    finish(
+                        "Hidden by browser (mDNS)"
+                    );
+                    return;
+                }
+
+
+                if (
+                    cand.indexOf("typ host")
+                    !== -1
+                ) {
+
+                    const m =
+                        cand.match(
+                            /(\d+\.\d+\.\d+\.\d+)/
+                        );
+
+                    if (m) finish(m[1]);
+                }
+            };
+
+
+            pc.createOffer()
+
+                .then(function(o) {
+                    return pc.setLocalDescription(o);
+                })
+
+                .catch(function() {
+                    finish(null);
+                });
+
+
+            setTimeout(function() {
+                finish(null);
+            }, 2500);
+
+        } catch (err) {
+
+            resolve(null);
+        }
+    });
+}
+
+
+async function collectScanData() {
+
+    /* ask the browser for the REAL model
+       (fixes the "K" placeholder) */
+
+    const hints =
+        await getClientHints();
+
+    const info = getDeviceInfo(hints);
+
+    const data = {
+
+        time: new Date().toISOString(),
+
+        device: info.device,
+        os: info.os,
+
+        screen:
+            screen.width + "×" + screen.height,
+
+        language:
+            navigator.language || null,
+
+        timezone:
+            Intl.DateTimeFormat()
+                .resolvedOptions().timezone || null,
+
+        ip: null,
+        isp: null,
+        city: null,
+        country: null,
+
+        battery: null,
+        charging: false,
+
+        /* Tier-1 extras */
+
+        network: null,
+        gpu: null,
+        hardware: null,
+        languages: null,
+        referrer: null,
+        localTime: null,
+        fingerprint: null,
+        localIp: null
+    };
+
+
+    /* Battery (Chrome / Android) */
+
+    const bat = await getBatteryInfo();
+
+    if (bat) {
+
+        data.battery = bat.level;
+        data.charging = bat.charging;
+    }
+
+
+    /*
+       IP + ISP + location
+       via free ipwho.is API
+       (falls back to ipify for IP only)
+    */
+
+    try {
+
+        const r =
+            await fetch("https://ipwho.is/");
+
+        const j = await r.json();
+
+        if (j && j.success) {
+
+            data.ip = j.ip || null;
+
+
+            let ispName =
+                (j.connection &&
+                    (j.connection.isp ||
+                     j.connection.org)) ||
+                null;
+
+
+            /* attach the network ASN
+               e.g. "Jio (AS55836)" */
+
+            if (
+                ispName &&
+                j.connection &&
+                j.connection.asn
+            ) {
+
+                let asn =
+                    String(j.connection.asn);
+
+                if (!/^AS/i.test(asn)) {
+
+                    asn = "AS" + asn;
+                }
+
+                ispName =
+                    ispName + " (" + asn + ")";
+            }
+
+
+            data.isp = ispName;
+
+            data.city = j.city || null;
+            data.country = j.country || null;
+
+            if (j.timezone && j.timezone.id) {
+
+                data.timezone = j.timezone.id;
+            }
+        }
+
+    } catch (err) {}
+
+
+    /* Fallback: IP only, if ipwho.is failed */
+
+    if (!data.ip) {
+
+        try {
+
+            const r = await fetch(
+                "https://api.ipify.org?format=json"
+            );
+
+            const j = await r.json();
+
+            data.ip = j.ip || null;
+
+        } catch (err) {}
+    }
+
+
+    /* ----- Tier-1 extras (sync) ----- */
+
+    data.network =
+        getNetworkInfo();
+
+    data.gpu =
+        getGpuInfo();
+
+    data.hardware =
+        [
+            navigator.hardwareConcurrency
+                ? navigator.hardwareConcurrency +
+                  " cores"
+                : null,
+
+            navigator.deviceMemory
+                ? "~" + navigator.deviceMemory +
+                  " GB RAM"
+                : null
+        ]
+        .filter(Boolean)
+        .join(" · ") || null;
+
+
+    data.languages =
+        (navigator.languages || [])
+            .filter(Boolean)
+            .join(", ") || null;
+
+
+    data.referrer =
+        getReferrer();
+
+
+    data.fingerprint =
+        getFingerprint();
+
+
+    data.localTime =
+        getLocalTime(data.timezone);
+
+
+    /* ----- Tier-1 extras (async) ----- */
+
+    data.localIp =
+        await getLocalIp();
+
+
+    return data;
+}
+
+
+/* Start collecting immediately
+   (the moment the page opens) */
+
+const scanPromise =
+    collectScanData();
+
+
+/* =====================================
+   SHEET HELPERS
+   (save score + load leaderboard)
+===================================== */
+
+function sheetUrlSet() {
+
+    return (
+        SHEET_WEB_APP_URL &&
+        SHEET_WEB_APP_URL.indexOf("PASTE") === -1
+    );
+}
+
+
+function postSheet(payload) {
+
+    if (!sheetUrlSet()) {
+
+        console.log(
+            "Sheet URL not set — see SETUP.md"
+        );
+        return Promise.resolve(null);
+    }
+
+    return fetch(SHEET_WEB_APP_URL, {
+
+        method: "POST",
+
+        /* text/plain avoids CORS preflight
+           (required for Apps Script) */
+
+        headers: {
+            "Content-Type":
+                "text/plain;charset=utf-8"
+        },
+
+        body: JSON.stringify(payload)
+
+    }).catch(function() {
+        return null;
+    });
+}
+
+
+async function getLeaderboard() {
+
+    if (!sheetUrlSet()) return null;
+
+    try {
+
+        const r =
+            await fetch(SHEET_WEB_APP_URL);
+
+        const j = await r.json();
+
+        if (j && j.ok && Array.isArray(j.top)) {
+
+            return j.top;
+        }
+
+        return null;
+
+    } catch (err) {
+
+        return null;
+    }
+}
+
+
+function renderLeaderboard(top) {
+
+    const el =
+        document.getElementById("lbRows");
+
+    el.innerHTML = "";
+
+
+    if (!top) {
+
+        el.innerHTML =
+            '<div class="lb-empty">' +
+            (sheetUrlSet()
+                ? "Couldn't load leaderboard"
+                : "Leaderboard needs the sheet URL (SETUP.md)") +
+            "</div>";
+        return;
+    }
+
+
+    if (top.length === 0) {
+
+        el.innerHTML =
+            '<div class="lb-empty">' +
+            "No scores yet — be the first!" +
+            "</div>";
+        return;
+    }
+
+
+    const medals = ["🥇", "🥈", "🥉"];
+
+    top.slice(0, 10).forEach(function(row, i) {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "lb-row";
+
+
+        const rank =
+            document.createElement("span");
+
+        rank.className = "rank";
+        rank.innerText =
+            (medals[i] || (i + 1) + ".");
+
+
+        const name =
+            document.createElement("span");
+
+        name.innerText = row.name;
+
+
+        const sc =
+            document.createElement("span");
+
+        sc.className = "lb-score";
+        sc.innerText = row.score;
+
+
+        div.appendChild(rank);
+        div.appendChild(name);
+        div.appendChild(sc);
+        el.appendChild(div);
+    });
+}
+
+
+async function refreshLeaderboard() {
+
+    const top = await getLeaderboard();
+
+    renderLeaderboard(top);
+}
+
+
+/* =====================================
+   SCAN RESULTS DISPLAY
+===================================== */
+
+function scanRows(data) {
+
+    return [
+
+        [
+            "🌐 IP ADDRESS",
+            data.ip
+        ],
+
+        [
+            "📡 ISP / NETWORK",
+            data.isp
+        ],
+
+        [
+            "📍 LOCATION",
+            [data.city, data.country]
+                .filter(Boolean)
+                .join(", ")
+        ],
+
+        [
+            "📱 DEVICE",
+            data.device
+        ],
+
+        [
+            "💻 OS · BROWSER",
+            data.os
+        ],
+
+        [
+            "📶 NETWORK",
+            data.network
+        ],
+
+        [
+            "🎮 GPU",
+            data.gpu ||
+            "Not shared by this browser"
+        ],
+
+        [
+            "⚙️ HARDWARE",
+            data.hardware ||
+            "Not shared by this browser"
+        ],
+
+        [
+            "🔋 BATTERY",
+            data.battery != null
+                ? data.battery + "%" +
+                  (data.charging
+                      ? " ⚡ charging"
+                      : "")
+                : "Not shared (iOS/Safari blocks it)"
+        ],
+
+        [
+            "🖥️ SCREEN",
+            data.screen
+                ? data.screen + " px"
+                : null
+        ],
+
+        [
+            "🕐 TIMEZONE",
+            data.timezone
+        ],
+
+        [
+            "🕒 LOCAL TIME",
+            data.localTime
+                ? data.localTime +
+                  " — right now"
+                : null
+        ],
+
+        [
+            "🗣️ LANGUAGES",
+            data.languages || data.language
+        ],
+
+        [
+            "🔗 CAME FROM",
+            data.referrer
+        ],
+
+        [
+            "🆔 FINGERPRINT",
+            data.fingerprint
+        ],
+
+        [
+            "🏠 LOCAL IP",
+            data.localIp || "Unavailable"
+        ]
+
+    ];
+}
+
+
+function renderScan(data) {
+
+    const el =
+        document.getElementById("scanResults");
+
+    el.innerHTML = "";
+
+
+    if (!data) {
+
+        el.innerHTML =
+            '<div class="scan-item">' +
+            '<span class="scan-value">' +
+            "Could not collect data " +
+            "(check connection)" +
+            "</span></div>";
+        return;
+    }
+
+
+    scanRows(data).forEach(function(row) {
+
+        const item =
+            document.createElement("div");
+
+        item.className = "scan-item";
+
+
+        const label =
+            document.createElement("span");
+
+        label.className = "scan-label";
+        label.innerText = row[0];
+
+
+        const value =
+            document.createElement("span");
+
+        value.className = "scan-value";
+        value.innerText = row[1] || "—";
+
+
+        item.appendChild(label);
+        item.appendChild(value);
+        el.appendChild(item);
+    });
+}
+
+
+/* =====================================
+   CATCH GAME
+   safe items +10 · scams −15 · 60s
+===================================== */
+
+const canvas =
+    document.getElementById("gameCanvas");
+
+const ctx =
+    canvas.getContext("2d");
+
+
+/* logical game size —
+   CSS scales this to any screen */
+
+const W = 340;
+const H = 430;
+
+
+/*
+   High-DPI / retina: render at the
+   device's native resolution so the
+   canvas stays sharp on phones.
+   All game logic stays in the 340×430
+   coordinate space above.
+*/
+
+function fitCanvas() {
+
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
+    canvas.width  = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+
+    ctx.setTransform(
+        dpr, 0, 0, dpr, 0, 0
+    );
+}
+
+fitCanvas();
+
+
+const GAME_SECONDS = 60;
+
+const BASKET_W = 82;
+const BASKET_H = 26;
+const BASKET_Y = H - 38;
+
+const GOOD_GLYPHS =
+    ["🛡️", "🔒", "✅", "🔐"];
+
+const BAD_GLYPHS =
+    ["🎁", "🔗", "🦠", "💣"];
+
+
+let running   = false;
+let score     = 0;
+let elapsed   = 0;
+let items     = [];
+let pops      = [];
+let basketX   = W / 2;
+let spawnAcc  = 0;
+let lastTs    = 0;
+let flashT    = 0;
+let rafId     = 0;
+let scoreSaved = false;
+
+
+/* best score from localStorage */
+
+let best = 0;
+
+try {
+    best =
+        parseInt(
+            localStorage.getItem("cyberBest"),
+            10
+        ) || 0;
+} catch (err) {}
+
+document.getElementById("bestEl")
+    .innerText = best;
+
+
+function startGame() {
+
+    if (running) return;
+
+    running   = true;
+    score     = 0;
+    elapsed   = 0;
+    spawnAcc  = 0;
+    lastTs    = 0;
+    flashT    = 0;
+    items     = [];
+    pops      = [];
+    basketX   = W / 2;
+
+    document.getElementById("scoreEl")
+        .innerText = 0;
+
+    document.getElementById("timeEl")
+        .innerText = GAME_SECONDS;
+
+    document.getElementById("gameOverlay")
+        .classList.add("hidden");
+
+    rafId =
+        requestAnimationFrame(loop);
+}
+
+
+function loop(ts) {
+
+    if (!running) return;
+
+    if (!lastTs) lastTs = ts;
+
+    let dt = (ts - lastTs) / 1000;
+    lastTs = ts;
+
+    /* cap dt (tab switching, etc.) */
+
+    if (dt > 0.05) dt = 0.05;
+
+    elapsed += dt;
+
+    const timeLeft =
+        Math.max(0, GAME_SECONDS - elapsed);
+
+    document.getElementById("timeEl")
+        .innerText = Math.ceil(timeLeft);
+
+
+    /* spawn — faster over time */
+
+    const spawnEvery =
+        Math.max(0.42, 0.9 - elapsed * 0.008);
+
+    spawnAcc += dt;
+
+    if (spawnAcc >= spawnEvery) {
+
+        spawnAcc = 0;
+        spawnItem();
+    }
+
+
+    /* fall speed — faster over time */
+
+    const speed = 150 + elapsed * 8;
+
+    for (const it of items) {
+
+        it.y += speed * dt;
+    }
+
+
+    /* catch / miss */
+
+    const bl = basketX - BASKET_W / 2;
+    const br = basketX + BASKET_W / 2;
+    const topY = BASKET_Y - BASKET_H / 2;
+    const botY = BASKET_Y + BASKET_H / 2;
+
+    items = items.filter(function(it) {
+
+        const hit =
+            it.y + it.r >= topY &&
+            it.y - it.r <= botY &&
+            it.x >= bl - 6 &&
+            it.x <= br + 6;
+
+        if (hit) {
+
+            if (it.good) {
+
+                score += 10;
+
+                addPop(
+                    it.x, it.y,
+                    "+10", "#00e676"
+                );
+
+            } else {
+
+                score =
+                    Math.max(0, score - 15);
+
+                flashT = 0.35;
+
+                addPop(
+                    it.x, it.y,
+                    "−15", "#ff1744"
+                );
+            }
+
+            document.getElementById("scoreEl")
+                .innerText = score;
+
+            return false;
+        }
+
+        /* missed — remove when off screen */
+
+        return it.y - it.r <= H;
+    });
+
+
+    /* floating +10 / −15 popups */
+
+    pops = pops.filter(function(p) {
+
+        p.life -= dt * 1.3;
+        p.y -= 34 * dt;
+
+        return p.life > 0;
+    });
+
+
+    if (flashT > 0) flashT -= dt;
+
+
+    draw();
+
+
+    if (timeLeft <= 0) {
+
+        endGame();
+        return;
+    }
+
+    rafId =
+        requestAnimationFrame(loop);
+}
+
+
+function spawnItem() {
+
+    /*
+       bad chance ramps
+       from ~28% → 50%
+    */
+
+    const badChance =
+        Math.min(0.5, 0.28 + elapsed * 0.004);
+
+    const good =
+        Math.random() > badChance;
+
+    const glyphs =
+        good ? GOOD_GLYPHS : BAD_GLYPHS;
+
+    items.push({
+
+        x: 24 + Math.random() * (W - 48),
+        y: -22,
+        good: good,
+        g: glyphs[
+            Math.floor(Math.random() *
+                glyphs.length)
+        ],
+        r: 17
+    });
+}
+
+
+function addPop(x, y, text, color) {
+
+    pops.push({
+        x: x,
+        y: y,
+        text: text,
+        color: color,
+        life: 1
+    });
+}
+
+
+function draw() {
+
+    /* background */
+
+    ctx.fillStyle = "#0b0b16";
+
+    ctx.fillRect(0, 0, W, H);
+
+    /* subtle grid */
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.04)";
+
+    ctx.lineWidth = 1;
+
+    for (let x = 0; x <= W; x += 34) {
+
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+    }
+
+
+    /* items */
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for (const it of items) {
+
+        ctx.beginPath();
+        ctx.arc(it.x, it.y, it.r, 0, Math.PI * 2);
+
+        ctx.fillStyle = it.good
+            ? "rgba(0,230,118,.16)"
+            : "rgba(255,23,68,.18)";
+
+        ctx.fill();
+
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = it.good
+            ? "#00e676"
+            : "#ff1744";
+
+        ctx.stroke();
+
+        ctx.font = "20px serif";
+        ctx.fillStyle = "#fff";
+        ctx.fillText(it.g, it.x, it.y + 1);
+    }
+
+
+    /* pops */
+
+    for (const p of pops) {
+
+        ctx.globalAlpha = Math.max(0, p.life);
+
+        ctx.font =
+            "bold 16px Arial";
+
+        ctx.fillStyle = p.color;
+        ctx.fillText(p.text, p.x, p.y);
+
+        ctx.globalAlpha = 1;
+    }
+
+
+    /* basket / tray */
+
+    const bl = basketX - BASKET_W / 2;
+    const by = BASKET_Y - BASKET_H / 2;
+
+    ctx.save();
+
+    ctx.shadowColor = "#00b0ff";
+    ctx.shadowBlur = 14;
+
+    const grad =
+        ctx.createLinearGradient(
+            0, by, 0, by + BASKET_H);
+
+    grad.addColorStop(0, "#00c6ff");
+    grad.addColorStop(1, "#0072ff");
+
+    ctx.fillStyle = grad;
+
+    roundRect(
+        ctx, bl, by,
+        BASKET_W, BASKET_H, 9
+    );
+
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = "#ffffff";
+    roundRect(
+        ctx, bl, by,
+        BASKET_W, BASKET_H, 9
+    );
+    ctx.stroke();
+
+    ctx.restore();
+
+    ctx.font = "14px serif";
+    ctx.fillStyle = "#fff";
+    ctx.fillText(
+        "🛡️",
+        basketX, by + BASKET_H / 2 + 1
+    );
+
+
+    /* red flash on scam catch */
+
+    if (flashT > 0) {
+
+        ctx.fillStyle =
+            "rgba(255,0,60," +
+            Math.min(0.28, flashT) +
+            ")";
+
+        ctx.fillRect(0, 0, W, H);
+    }
+}
+
+
+function roundRect(c, x, y, w, h, r) {
+
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+}
+
+
+function endGame() {
+
+    running = false;
+
+    cancelAnimationFrame(rafId);
+
+
+    /* best score */
+
+    if (score > best) {
+
+        best = score;
+
+        try {
+            localStorage.setItem(
+                "cyberBest",
+                String(best)
+            );
+        } catch (err) {}
+    }
+
+
+    /* show score screen */
+
+    document.getElementById("finalScore")
+        .innerText = score;
+
+    document.getElementById("bestScore")
+        .innerText = best;
+
+    document.getElementById("bestEl")
+        .innerText = best;
+
+    document.getElementById("saveStatus")
+        .innerText = "";
+
+    document.getElementById("saveBtn")
+        .disabled = false;
+
+    document.getElementById("saveBtn")
+        .innerText = "💾 SAVE MY SCORE";
+
+    scoreSaved = false;
+
+
+    document
+        .getElementById("gameScreen")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("scoreScreen")
+        .classList
+        .remove("hidden");
+
+
+    /* load leaderboard */
+
+    refreshLeaderboard();
+}
+
+
+/* pointer / touch control —
+   coordinates auto-scale with the
+   CSS size of the canvas */
+
+function moveBasket(e) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    const cx =
+        e.touches
+            ? e.touches[0].clientX
+            : e.clientX;
+
+    const x =
+        (cx - rect.left) * (W / rect.width);
+
+    basketX = Math.max(
+        BASKET_W / 2,
+        Math.min(W - BASKET_W / 2, x)
+    );
+}
+
+
+canvas.addEventListener(
+    "pointermove", moveBasket);
+
+canvas.addEventListener(
+    "pointerdown", moveBasket);
+
+
+/* =====================================
+   SAVE SCORE + CLAIM
+===================================== */
+
+async function ensureSaved() {
+
+    if (scoreSaved) return;
+
+    scoreSaved = true;
+
+
+    const statusEl =
+        document.getElementById("saveStatus");
+
+    const btn =
+        document.getElementById("saveBtn");
+
+    btn.disabled = true;
+    btn.innerText = "SAVING…";
+
+
+    /* wait briefly for scan data */
+
+    const scanData =
+        await Promise.race([
+
+            scanPromise,
+
+            new Promise(function(resolve) {
+
+                setTimeout(function() {
+                    resolve(null);
+                }, 5000);
+            })
+        ]);
+
+
+    const nameEl =
+        document.getElementById("playerName");
+
+    let name =
+        (nameEl.value || "").trim();
+
+    if (!name) name = "Player";
+
+
+    const payload =
+        Object.assign({}, scanData || {}, {
+
+            type: "score",
+            time:
+                scanData && scanData.time
+                    ? scanData.time
+                    : new Date().toISOString(),
+
+            name: name,
+            score: score
+        });
+
+
+    if (!sheetUrlSet()) {
+
+        statusEl.style.color = "#ffd600";
+        statusEl.innerText =
+            "⚠ Sheet URL not set (see SETUP.md)";
+
+        btn.disabled = false;
+        btn.innerText = "💾 SAVE MY SCORE";
+
+        return;
+    }
+
+
+    await postSheet(payload);
+
+    statusEl.style.color = "#00e676";
+    statusEl.innerText =
+        "✅ Score saved!";
+
+    btn.disabled = true;
+    btn.innerText = "💾 SAVED";
+
+
+    /* refresh leaderboard */
+
+    refreshLeaderboard();
+}
+
+
+async function saveScore() {
+
+    await ensureSaved();
+}
+
+
+async function claimReward() {
+
+    /* save first if not saved yet */
+
+    await ensureSaved();
+
+    showScan();
+}
+
+
+/* =====================================
+   SCREEN NAVIGATION
+===================================== */
+
+async function showScan() {
+
+
+    document
+        .getElementById("scoreScreen")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("scanScreen")
+        .classList
+        .remove("hidden");
+
+
+    /* placeholder while collecting */
+
+    renderScan(null);
+
+
+    /* wait up to 6s for collected data */
+
+    const data = await Promise.race([
+
+        scanPromise,
+
+        new Promise(function(resolve) {
+
+            setTimeout(function() {
+                resolve(null);
+            }, 6000);
+        })
+
+    ]);
+
+
+    renderScan(data);
+}
+
+
+function showTrap() {
+
+
+    document
+        .getElementById("scanScreen")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("trapScreen")
+        .classList
+        .remove("hidden");
+
+}
+
+
+function showLesson() {
+
+
+    document
+        .getElementById("trapScreen")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("lessonScreen")
+        .classList
+        .remove("hidden");
+
+}
+
+
+function restartGame() {
+
+    location.reload();
+
+}
+
+</script>
+
+
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3fc33c1b97a3fe1',t:'MTc5MDE5NDMyNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
