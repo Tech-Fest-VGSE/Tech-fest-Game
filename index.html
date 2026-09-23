@@ -150,19 +150,30 @@ h1 {
 ========================= */
 
 .wheel {
+
+    position: relative;
+
     width: min(250px, 75vw);
     height: min(250px, 75vw);
+
     aspect-ratio: 1 / 1;
-}
+
+    border-radius: 50%;
+
+    background: conic-gradient(
+        #ff1744 0deg 60deg,
+        #ff9100 60deg 120deg,
+        #ffd600 120deg 180deg,
+        #00e676 180deg 240deg,
+        #00b0ff 240deg 300deg,
+        #d500f9 300deg 360deg
+    );
 
     border: 8px solid white;
 
     box-shadow:
-
         0 0 15px #ff1744,
-
         0 0 30px #00b0ff,
-
         0 0 50px rgba(255,255,255,.15);
 
     transition:
